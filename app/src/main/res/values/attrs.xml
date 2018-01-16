@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RippleView">
+        <attr name="rv_color" format="color"/>
+        <attr name="rv_strokeWidth" format="dimension"/>
+        <attr name="rv_radius" format="dimension"/>
+        <attr name="rv_scale" format="float"/>
+        <attr name="rv_type" format="enum">
+            <enum name="fill" value="0"/>
+            <enum name="stroke" value="1"/>
+            <enum name="fill_and_stroke" value="2"/>
+        </attr>
+    </declare-styleable>
+</resources>

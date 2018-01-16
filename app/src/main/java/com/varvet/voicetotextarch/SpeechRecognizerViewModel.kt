@@ -29,17 +29,19 @@ class SpeechRecognizerViewModel(application: Application): AndroidViewModel(appl
     data class ViewState(
             val spokenText: String,
             val isListening: Boolean,
-            val error: String?
+            val error: String?,
+            val rmsDbChanged: Boolean = false
     )
 
     private var viewState: MutableLiveData<ViewState>? = null
+    private var previousRmsdB = 0f
 
     private val speechRecognizer: SpeechRecognizer = createSpeechRecognizer(application.applicationContext).apply {
         setRecognitionListener(this@SpeechRecognizerViewModel)
     }
 
     private val recognizerIntent: Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-//        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "sv-SE")
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "sv-SE")
         putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
         putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, application.packageName)
         putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
@@ -72,12 +74,12 @@ class SpeechRecognizerViewModel(application: Application): AndroidViewModel(appl
     }
 
     private fun notifyListening(isRecording: Boolean) {
-        viewState?.value = viewState?.value?.copy(isListening = isRecording)
+        viewState?.value = viewState?.value?.copy(isListening = isRecording, rmsDbChanged = false)
     }
 
     private fun updateResults(speechBundle: Bundle?) {
         val userSaid = speechBundle?.getStringArrayList(RESULTS_RECOGNITION)
-        viewState?.value = viewState?.value?.copy(spokenText = userSaid?.get(0) ?: "")
+        viewState?.value = viewState?.value?.copy(spokenText = userSaid?.get(0) ?: "", rmsDbChanged = false)
     }
 
     private fun checkAudioRecordingPermission(context: Application) =
@@ -86,6 +88,15 @@ class SpeechRecognizerViewModel(application: Application): AndroidViewModel(appl
     override fun onPartialResults(results: Bundle?) = updateResults(speechBundle = results)
     override fun onResults(results: Bundle?) = updateResults(speechBundle = results)
     override fun onEndOfSpeech() = notifyListening(isRecording = false)
+
+    override fun onRmsChanged(rmsdB: Float) {
+        if (rmsdB > 4 && diffRms(newRms = rmsdB, previousRms = previousRmsdB) > 1) {
+            previousRmsdB = rmsdB
+            viewState?.value = viewState?.value?.copy(rmsDbChanged = true)
+        }
+    }
+
+    private fun diffRms(newRms: Float, previousRms: Float): Int = Math.abs(previousRms - newRms).toInt()
 
     override fun onError(errorCode: Int) {
         viewState?.value = viewState?.value?.copy(error = when (errorCode) {
@@ -99,11 +110,10 @@ class SpeechRecognizerViewModel(application: Application): AndroidViewModel(appl
             ERROR_SERVER -> "error_server"
             ERROR_SPEECH_TIMEOUT -> "error_timeout"
             else -> "error_unknown"
-        })
+        }, rmsDbChanged = false)
     }
 
     override fun onReadyForSpeech(p0: Bundle?) {}
-    override fun onRmsChanged(p0: Float) {}
     override fun onBufferReceived(p0: ByteArray?) {}
     override fun onEvent(p0: Int, p1: Bundle?) {}
     override fun onBeginningOfSpeech() {}

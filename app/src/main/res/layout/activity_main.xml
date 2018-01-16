@@ -21,15 +21,26 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <Button
-        android:id="@+id/mic_button"
-        android:layout_width="@dimen/mic_button_width"
-        android:layout_height="@dimen/mic_button_height"
-        android:background="@drawable/mic_black"
+    <com.varvet.voicetotextarch.RippleView
+        android:id="@+id/circle_ripple"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        app:rv_color="@color/colorPrimary"
+        app:rv_radius="15dp"
+        app:rv_scale="4"
+        app:rv_type="stroke"
+        app:rv_strokeWidth="2dp"
         app:layout_constraintVertical_bias="@dimen/mic_button_vertical_bias"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <Button
+            android:id="@+id/mic_button"
+            android:layout_width="@dimen/mic_button_width"
+            android:layout_height="@dimen/mic_button_height"
+            android:layout_centerInParent="true"
+            android:background="@drawable/mic_black"/>
+    </com.varvet.voicetotextarch.RippleView>
 </android.support.constraint.ConstraintLayout>

@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var textField: TextView
     private lateinit var micButton: Button
+    private lateinit var rippleView: RippleView
 
     private lateinit var speechRecognizerViewModel: SpeechRecognizerViewModel
 
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         micButton = findViewById<Button>(R.id.mic_button).apply {
             setOnClickListener(micClickListener)
         }
+        rippleView = findViewById(R.id.circle_ripple)
 
         setupSpeechViewModel()
     }
@@ -65,6 +67,10 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.getDrawable(this, R.drawable.mic_red)
         } else {
             ContextCompat.getDrawable(this, R.drawable.mic_black)
+        }
+
+        if (uiOutput.rmsDbChanged) {
+            rippleView.newRipple()
         }
     }
 
